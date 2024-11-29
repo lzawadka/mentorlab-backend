@@ -49,4 +49,12 @@ export class UserRepository {
       where: { id: userId },
     });
   }
+
+  async findByIds(userIds: number[]) {
+    return this.prisma.user.findMany({
+      where: {
+        id: { in: userIds },
+      },
+    });
+  }
 }

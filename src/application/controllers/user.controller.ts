@@ -1,42 +1,51 @@
 import { Controller, Post, Body, Get, Head, Param, Delete, Put } from '@nestjs/common';
 import { CreateUserDto } from '../dto/user/request/create-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { LoginUserRequestDto } from '../dto/user/request/login-user-request.dto';
-import { AuthenticateUserUseCase } from '../use-cases/authenticate-user-usecase';
+import { LoginUserRequestDto } from '../dto/auth/request/login-user-request.dto';
 import { UserUseCase } from '../use-cases/user.usecase';
 import { UpdateUserDto } from '../dto/user/request/update-user-request.dto';
 import { UpdateUserResponseDto } from '../dto/user/response/update-user-response.dto';
+import { GetUserResponseDto } from '../dto/user/response/get-user-response.dto';
+import { CreateUserResponseDto } from '../dto/user/response/create-user-response.dto';
 
-@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userUseCase: UserUseCase, 
-    private readonly authenticateUserUseCase: AuthenticateUserUseCase,
   ) {}
 
   @ApiOperation({
     summary: "Create User",
   })
+  @ApiResponse({
+    status: 201,
+    description: 'Utilisateur créé avec succès',
+    type: CreateUserResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Données invalides',
+  })
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<CreateUserResponseDto> {
     return this.userUseCase.createUser(createUserDto.email, createUserDto.password);
   }
   
   @ApiOperation({
     summary: "Get User by mail",
   })
-  @Get(':userMail')
-  async getByMail(@Param('userMail') userMail: string) {
-    return this.userUseCase.findUserByMail(userMail);
-  }
-
-  @ApiOperation({
-    summary: "Sign In User",
+  @ApiResponse({
+    status: 200,
+    description: 'Utilisateur trouvé',
+    type: GetUserResponseDto,
   })
-  @Post('signIn')
-  async signIn(@Body() credentials: LoginUserRequestDto) {
-    return this.authenticateUserUseCase.execute(credentials.email, credentials.password);
+  @ApiResponse({
+    status: 404,
+    description: 'Utilisateur non trouvé',
+  })
+  @Get(':userMail')
+  async getByMail(@Param('userMail') userMail: string): Promise<GetUserResponseDto> {
+    return this.userUseCase.findUserByMail(userMail);
   }
 
   @ApiOperation({ summary: 'Mettre à jour un utilisateur' })
@@ -46,18 +55,16 @@ export class UserController {
     type: UpdateUserResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
+  @ApiResponse({
+    status: 400,
+    description: 'Données invalides',
+  })
   @Put(':id')
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UpdateUserResponseDto> {
-    const updatedUser = await this.userUseCase.updateUser(Number(id), updateUserDto);
-    return {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      createdAt: updatedUser.createdAt,
-      updatedAt: updatedUser.updatedAt,
-    };
+    return await this.userUseCase.updateUser(Number(id), updateUserDto);
   }
 
   @ApiOperation({ summary: 'Supprimer un utilisateur' })

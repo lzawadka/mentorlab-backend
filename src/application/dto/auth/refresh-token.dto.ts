@@ -1,15 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RefreshTokenDto {
-  @ApiProperty({
-    description: 'ID de l’utilisateur',
-    example: 1,
-  })
+  @ApiProperty({ description: "L'ID de l'utilisateur" })
   userId: number;
 
-  @ApiProperty({
-    description: 'Refresh token valide',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  })
+  @ApiProperty({ description: 'Refresh token valide pour renouveler le token JWT' })
   refreshToken: string;
 }

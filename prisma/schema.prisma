@@ -7,12 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Participant {
+  id         Int      @id @default(autoincrement())
+  userId     Int      // Champ clé étrangère pour la relation avec User
+  campaignId Int      // Champ clé étrangère pour la relation avec Campaign
+  teamId     Int?     // Champ clé étrangère optionnel pour la relation avec Team
+
+  user       User     @relation(fields: [userId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  team       Team?    @relation(fields: [teamId], references: [id])
+
+  createdAt  DateTime @default(now())
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  role      String   @default("participant")
-  refreshToken  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  role        String        @default("participant")
+  refreshToken String?
+  
+  participants Participant[] // Relation vers Participant
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
+}
+
+model Campaign {
+  id           Int         @id @default(autoincrement())
+  clientId     Int         
+  
+  title        String
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+
+  client       Client     @relation(fields: [clientId], references: [id]) // Relation vers Client
+  participants Participant[] // Relation vers Participant
+  teams        Team[] 
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+}
+
+model Client {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  contactEmail String    @unique
+  campaigns   Campaign[] // Relation vers Campaign
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Team {
+  id           Int           @id @default(autoincrement())
+  name         String
+  campaignId   Int           // Champ clé étrangère pour Campaign
+
+  campaign     Campaign      @relation(fields: [campaignId], references: [id])
+  participants Participant[] // Relation vers Participant
+
+  createdAt    DateTime      @default(now())
 }

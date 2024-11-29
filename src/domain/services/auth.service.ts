@@ -2,8 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/infrastructure/repository/user.repository';
-import { AuthResponseDto } from 'src/application/dto/auth/response/auth-response.dto';
+import { AuthResponseDto } from 'src/application/dto/auth/response/login-response.dto';
 import { ValidateUserDto } from 'src/application/dto/user/response/validate-user-response.dto';
+import { LoginUserRequestDto } from 'src/application/dto/auth/request/login-user-request.dto';
+import { RefreshTokenResponseDto } from 'src/application/dto/auth/response/refresh-token-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,20 +25,22 @@ export class AuthService {
     return result;
   }
 
-  async login(user: ValidateUserDto): Promise<AuthResponseDto> {
-    const payload = { username: user.email, sub: user.id, role: user.role };
+  async login(user: LoginUserRequestDto): Promise<AuthResponseDto> {
+    const validUser = await this.validateUser(user.email, user.password);
+    const payload = { username: validUser.email, sub: validUser.id, role: validUser.role };
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken);
+    await this.userRepository.updateRefreshToken(validUser.id, hashedRefreshToken);
 
     return {
-      access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' })
+      userId: validUser.id,
+      accessToken: this.jwtService.sign(payload),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' })
     };
   }
 
-  async refreshTokens(userId: number, refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+  async refreshTokens(userId: number, refreshToken: string): Promise<RefreshTokenResponseDto> {
     const user = await this.userRepository.findById(userId);
     if (!user || !user.refreshToken) throw new UnauthorizedException('Access Denied');
 
@@ -54,8 +58,8 @@ export class AuthService {
     await this.userRepository.updateRefreshToken(user.id, hashedRefreshToken);
 
     return {
-      access_token: newAccessToken,
-      refresh_token: newRefreshToken,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     };
   }
 }
