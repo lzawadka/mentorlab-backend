@@ -24,6 +24,7 @@ export class ClientRepository {
     });
   }
 
+  
   // Mettre à jour un client
   async updateClient(id: number, data: { name?: string; description?: string; contactEmail?: string }) {
     return this.prisma.client.update({

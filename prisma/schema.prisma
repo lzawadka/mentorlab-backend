@@ -21,12 +21,15 @@ model Participant {
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  email       String        @unique
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
   password    String
-  role        String        @default("participant")
+  firstName   String?
+  lastName    String?
+  role        String  @default("participant")
   refreshToken String?
-  
+  clientId   Int      @default(1)
+  client     Client   @relation(fields: [clientId], references: [id])
   participants Participant[] // Relation vers Participant
 
   createdAt   DateTime      @default(now())
@@ -55,7 +58,8 @@ model Client {
   name        String    @unique
   description String?
   contactEmail String    @unique
-  campaigns   Campaign[] // Relation vers Campaign
+  campaigns   Campaign[]
+  users       User[] 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

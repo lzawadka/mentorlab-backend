@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ClientRepository } from '../../infrastructure/repository/client.repository';
+import { GetUserResponseDto } from 'src/application/dto/user/response/get-user-response.dto';
 
 @Injectable()
 export class ClientService {
@@ -36,9 +37,7 @@ export class ClientService {
   // Supprimer un client
   async deleteClient(id: number) {
     const deletedClient = await this.clientRepository.deleteClient(id);
-    if (!deletedClient) {
-      throw new NotFoundException(`Client with ID ${id} not found`);
-    }
+    if (!deletedClient) throw new NotFoundException(`Client with ID ${id} not found`);
     return deletedClient;
   }
 }

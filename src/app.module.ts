@@ -18,6 +18,7 @@ import { ParticipantRepository } from './infrastructure/repository/participant.r
 import { ClientRepository } from './infrastructure/repository/client.repository';
 import { TeamRepository } from './infrastructure/repository/team.repository';
 import { CampaignRepository } from './infrastructure/repository/campaign.repository';
+import { UserService } from './domain/services/user.service';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CampaignRepository } from './infrastructure/repository/campaign.reposit
     
     PrismaService, 
     AuthService,
+    UserService,
     ClientService,
     CampaignService,
     ParticipantService,

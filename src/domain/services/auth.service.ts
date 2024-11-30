@@ -2,10 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/infrastructure/repository/user.repository';
-import { AuthResponseDto } from 'src/application/dto/auth/response/login-response.dto';
 import { ValidateUserDto } from 'src/application/dto/user/response/validate-user-response.dto';
 import { LoginUserRequestDto } from 'src/application/dto/auth/request/login-user-request.dto';
 import { RefreshTokenResponseDto } from 'src/application/dto/auth/response/refresh-token-response.dto';
+import { LoginResponseDto } from 'src/application/dto/auth/response/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +25,7 @@ export class AuthService {
     return result;
   }
 
-  async login(user: LoginUserRequestDto): Promise<AuthResponseDto> {
+  async login(user: LoginUserRequestDto): Promise<LoginResponseDto> {
     const validUser = await this.validateUser(user.email, user.password);
     const payload = { username: validUser.email, sub: validUser.id, role: validUser.role };
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });

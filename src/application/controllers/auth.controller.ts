@@ -33,7 +33,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Utilisateur connecté avec succès',
-    type: AuthResponseDto,
+    type: LoginResponseDto,
   })
   @ApiResponse({
     status: 401,

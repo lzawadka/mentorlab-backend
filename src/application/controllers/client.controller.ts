@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { ClientService } from 'src/domain/services/client.service';
 import { CreateUserRequestDto } from '../dto/client/request/create-client-request.dto';
+import { UpdateClientRequestDto } from '../dto/client/request/update-client-request.dto';
 
 @Controller('clients')
 export class ClientController {
@@ -20,19 +21,19 @@ export class ClientController {
 
   // Endpoint pour récupérer un client spécifique par ID
   @Get(':id')
-  async getClientById(@Param('id') id: string) {
+  async getClientById(@Param('id') id: number) {
     return this.clientService.getClientById(Number(id));
   }
 
   // Endpoint pour mettre à jour un client
   @Put(':id')
-  async updateClient(@Param('id') id: string, @Body() data: { name?: string; description?: string; contactEmail?: string }) {
+  async updateClient(@Param('id') id: number, @Body() data: UpdateClientRequestDto) {
     return this.clientService.updateClient(Number(id), data);
   }
 
   // Endpoint pour supprimer un client
   @Delete(':id')
-  async deleteClient(@Param('id') id: string) {
+  async deleteClient(@Param('id') id: number) {
     return this.clientService.deleteClient(Number(id));
   }
 }

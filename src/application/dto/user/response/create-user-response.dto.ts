@@ -7,8 +7,11 @@ export class CreateUserResponseDto {
   @ApiProperty({ description: "L'email de l'utilisateur" })
   email: string;
 
+  @ApiProperty({ description: "Le prénom de l'utilisateur" })
+  firstName: string;
+
   @ApiProperty({ description: "Le nom de l'utilisateur" })
-  name: string;
+  lastName: string;
 
   @ApiProperty({ description: "Le rôle de l'utilisateur (participant, coach, admin)" })
   role: string;

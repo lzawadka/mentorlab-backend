@@ -9,7 +9,7 @@ export class CampaignController {
   constructor(private readonly campaignService: CampaignService) {}
 
   @ApiOperation({
-    summary: "Create new campaign",
+    summary: "Création d'un campagne",
   })
   @Post()
   async createCampaign(
@@ -20,7 +20,7 @@ export class CampaignController {
   }
 
   @ApiOperation({
-    summary: "Get all campaign",
+    summary: "Récupère tout les campagnes",
   })
   @Get()
   async getAllCampaigns() {
@@ -28,7 +28,7 @@ export class CampaignController {
   }
 
   @ApiOperation({
-    summary: "Get Campaign by Id",
+    summary: "Récupère une campagne pas son id",
   })
   @Get('getById/:id')
   async getCampaignById(@Param('id') id: string) {
@@ -36,7 +36,7 @@ export class CampaignController {
   }
 
   @ApiOperation({
-    summary: "Get Campaign by ClientId",
+    summary: "Récupère une campagne par son clientId",
   })
   @Get('getByClientId/:clientId')
   async getCampaignByClientId(@Param('clientId') id: string) {
@@ -44,7 +44,7 @@ export class CampaignController {
   }
 
   @ApiOperation({
-    summary: "Update Campaign",
+    summary: "Met à jour une campagne",
   })
   @Put(':id')
   async updateCampaign(@Param('id') id: string, @Body() data: UpdateCampaignRequestDto) {
@@ -52,7 +52,7 @@ export class CampaignController {
   }
 
   @ApiOperation({
-    summary: "Delete Campaign",
+    summary: "Supprime une campagne",
   })
   @Delete(':id')
   async deleteCampaign(@Param('id') id: string) {

@@ -57,4 +57,17 @@ export class UserRepository {
       },
     });
   }
+
+  async getUsersByClientId(clientId: number): Promise<User[]> {
+    return this.prisma.user.findMany({
+      where: {
+        clientId: clientId,
+      },
+      include: {
+        client: true,
+        participants: true
+      },
+    }); 
+  }
+
 }

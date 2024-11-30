@@ -10,4 +10,14 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @MinLength(6)
+  firstName: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @MinLength(6)
+  lastName: string;
 }

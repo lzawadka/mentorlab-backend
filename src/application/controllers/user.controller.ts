@@ -7,16 +7,17 @@ import { UpdateUserDto } from '../dto/user/request/update-user-request.dto';
 import { UpdateUserResponseDto } from '../dto/user/response/update-user-response.dto';
 import { GetUserResponseDto } from '../dto/user/response/get-user-response.dto';
 import { CreateUserResponseDto } from '../dto/user/response/create-user-response.dto';
+import { UserService } from 'src/domain/services/user.service';
+import { GetClientWithUsersResponseDto } from '../dto/user/response/get-client-users-response.dto';
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userUseCase: UserUseCase, 
+    private readonly userService: UserService, 
   ) {}
 
-  @ApiOperation({
-    summary: "Create User",
-  })
+  @ApiOperation({summary: "Créé un user"})
   @ApiResponse({
     status: 201,
     description: 'Utilisateur créé avec succès',
@@ -31,9 +32,7 @@ export class UserController {
     return this.userUseCase.createUser(createUserDto.email, createUserDto.password);
   }
   
-  @ApiOperation({
-    summary: "Get User by mail",
-  })
+  @ApiOperation({summary: "Récupère le user par son mail"})
   @ApiResponse({
     status: 200,
     description: 'Utilisateur trouvé',
@@ -73,6 +72,17 @@ export class UserController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {
     await this.userUseCase.deleteUser(Number(id));
+  }
+
+  @Get('userClient/:clientId')
+  @ApiOperation({ summary: 'Récupère tout les users via le clientId' })
+  @ApiResponse({
+    status: 200,
+    description: 'Details of the client with its users',
+    type: GetClientWithUsersResponseDto,
+  })
+  async getUsersByClientId(@Param('clientId') clientId: number) {
+    return this.userService.getUsersByClientId(Number(clientId));
   }
 }
 
