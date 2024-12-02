@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Participant } from 'src/domain/entities/participant.entity';
 
 @Injectable()
 export class ParticipantRepository {
@@ -29,7 +30,7 @@ export class ParticipantRepository {
   }
 
   async findParticipantByUser(userId: number) {
-    return this.prisma.participant.findFirst({
+    return this.prisma.participant.findMany({
       where: { userId },
       include: { campaign: true },
     });
@@ -41,16 +42,22 @@ export class ParticipantRepository {
     });
   }
 
-  async createParticipants(participants: { userId: number; campaignId: number }[]) {
-    const created = await Promise.all(
-      participants.map((participant) =>
-        this.prisma.participant.create({
-          data: participant,
-        }),
-      ),
-    );
-    return created;
+  async createParticipants(participants: { userId: number; campaignId: number }[]): Promise<Participant[]> {
+    await this.prisma.participant.createMany({
+      data: participants,
+      skipDuplicates: true,
+    });
+  
+    return this.prisma.participant.findMany({
+      where: {
+        OR: participants.map((participant) => ({
+          userId: participant.userId,
+          campaignId: participant.campaignId,
+        })),
+      },
+    });
   }
+  
 
   async findByIds(participantIds: number[]) {
     return this.prisma.participant.findMany({
@@ -66,4 +73,17 @@ export class ParticipantRepository {
       data: { teamId },
     });
   }
+
+  async findByCampaignAndUsers(
+    campaignId: number,
+    userIds: number[],
+  ): Promise<Participant[]> {
+    return this.prisma.participant.findMany({
+      where: {
+        campaignId,
+        userId: { in: userIds },
+      },
+    });
+  }
+  
 }

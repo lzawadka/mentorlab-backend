@@ -13,7 +13,7 @@ export class Campaign {
   startDate: Date;
   endDate: Date;
 
-  type: 'individual' | 'team';
+  type: string;
 
   participants?: Participant[];
   teams?: Team[];

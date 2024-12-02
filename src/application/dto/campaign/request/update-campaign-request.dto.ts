@@ -9,4 +9,7 @@ export class UpdateCampaignRequestDto {
     startDate?: Date; 
     @ApiProperty()
     endDate?: Date
+
+    @ApiProperty()
+    userIds?: number[]
 }

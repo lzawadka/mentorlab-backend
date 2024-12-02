@@ -7,6 +7,8 @@ import { GetUserResponseDto } from 'src/application/dto/user/response/get-user-r
 import { CreateUserResponseDto } from 'src/application/dto/user/response/create-user-response.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserResponseDto } from 'src/application/dto/user/response/update-user-response.dto';
+import { UpdateUserDto } from 'src/application/dto/user/request/update-user-request.dto';
+import { UpdateUserPasswordDto } from 'src/application/dto/user/request/update-user-password.dto';
 
 @Injectable()
 export class UserService {
@@ -35,11 +37,19 @@ export class UserService {
     await this.userRepository.deleteUser(userId);
   }
 
-  async updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<UpdateUserResponseDto> {
+  async updateUser(userId: number, data: UpdateUserDto): Promise<UpdateUserResponseDto> {
     const user = await this.userRepository.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
     return this.userRepository.updateUser(userId, data);
+  }
+
+  async updatePassword(userId: number, data: UpdateUserPasswordDto): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+  
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);;
+    await this.userRepository.updateUserPassword(userId, hashedPassword);
   }
 
   async findUserByMail(userMail: string): Promise<GetUserResponseDto> {

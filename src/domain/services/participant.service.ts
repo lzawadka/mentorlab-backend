@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { GetParticipantResponseDto } from 'src/application/dto/participant/response/get-particpant-response.dto';
 import { CampaignRepository } from 'src/infrastructure/repository/campaign.repository';
 import { ParticipantRepository } from 'src/infrastructure/repository/participant.repository';
 @Injectable()
@@ -9,24 +11,24 @@ export class ParticipantService {
   ) {}
 
   async createParticipant(data: { userId: number; campaignId: number; teamId?: number }) {
-    // Vérifie que la campagne existe
     const campaignExists = await this.campaignRepository.findById(data.campaignId);
     if (!campaignExists) {
       throw new NotFoundException(`Campaign with ID ${data.campaignId} does not exist`);
     }
 
-    // Vérifie que le participant n'existe pas déjà pour cette campagne
     const existingParticipant = await this.participantRepository.findParticipantByIdAndCampaign(data.userId, data.campaignId);
     if (existingParticipant) {
       throw new Error(`Participant already exists for campaign with ID ${data.campaignId}`);
     }
 
-    // Crée le participant
     return this.participantRepository.createParticipant(data.userId, data.campaignId, data.teamId);
   }
 
-  async getParticipantsByCampaign(campaignId: number) {
-    return this.participantRepository.findParticipantsByCampaign(campaignId);
+  async getParticipantsByCampaign(campaignId: number): Promise<GetParticipantResponseDto> {
+    const particpants =  this.participantRepository.findParticipantsByCampaign(campaignId);
+    return plainToInstance(GetParticipantResponseDto, particpants, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async getParticipantByUser(userId: number) {

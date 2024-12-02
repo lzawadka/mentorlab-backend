@@ -12,6 +12,10 @@ export class CreateCampaignRequestDto {
     @ApiProperty()
     @IsNotEmpty()
     title: string; 
+
+    @ApiProperty()
+    @IsNotEmpty()
+    type: string; 
     
     @ApiProperty()
     @IsNotEmpty()   

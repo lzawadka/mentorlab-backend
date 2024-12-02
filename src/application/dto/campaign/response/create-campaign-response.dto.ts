@@ -4,13 +4,13 @@ export class CreateCampaignResponseDto {
     @ApiProperty()
     clientId: number; 
     @ApiProperty()
-    userIds: number[]; 
-    @ApiProperty()
     title: string;
     @ApiProperty() 
     description?: string; 
     @ApiProperty()
     startDate: Date; 
     @ApiProperty()
-    endDate: Date
+    endDate: Date; 
+    @ApiProperty()
+    participantIds: number[]
 }

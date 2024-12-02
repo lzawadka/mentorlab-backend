@@ -5,11 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TeamRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createTeam(name: string, campaignId: number) {
+  async createTeam(name: string, campaignId: number, points: number = 0) {
     return this.prisma.team.create({
       data: {
         name,
         campaignId,
+        points
       },
     });
   }

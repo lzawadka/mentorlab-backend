@@ -7,6 +7,7 @@ import { GetUserResponseDto } from '../dto/user/response/get-user-response.dto';
 import { CreateUserResponseDto } from '../dto/user/response/create-user-response.dto';
 import { UserService } from 'src/domain/services/user.service';
 import { GetClientWithUsersResponseDto } from '../dto/user/response/get-client-users-response.dto';
+import { UpdateUserPasswordDto } from '../dto/user/request/update-user-password.dto';
 
 @Controller('users')
 export class UserController {
@@ -29,7 +30,7 @@ export class UserController {
     return this.userService.createUser(createUserDto.email, createUserDto.password);
   }
   
-  @ApiOperation({summary: "Récupère le user par son mail"})
+  @ApiOperation({summary: "Fetch user by mail"})
   @ApiResponse({
     status: 200,
     description: 'User found',
@@ -62,6 +63,24 @@ export class UserController {
   ): Promise<UpdateUserResponseDto> {
     return await this.userService.updateUser(Number(id), updateUserDto);
   }
+
+  @ApiOperation({ summary: "Update user password" })
+  @ApiResponse({
+    status: 200,
+    description: "Password updated successfully",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "User not found",
+  })
+  @Put(':id/password')
+  async updatePassword(
+    @Param('id') userId: string,
+    @Body() data: UpdateUserPasswordDto,
+  ): Promise<void> {
+    await this.userService.updatePassword(Number(userId), data);
+  }
+
 
   @ApiOperation({ summary: 'Delet user' })
   @ApiResponse({ status: 204, description: 'User successfully deleted' })

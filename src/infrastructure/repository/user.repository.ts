@@ -34,6 +34,13 @@ export class UserRepository {
     });
   }
   
+  async updateUserPassword(userId: number, hashedPassword: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+  }
+  
   async findById(userId: number): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { id: userId },

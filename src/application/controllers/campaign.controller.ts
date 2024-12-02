@@ -20,14 +20,6 @@ export class CampaignController {
   }
 
   @ApiOperation({
-    summary: "Fetch all campaigns",
-  })
-  @Get()
-  async getAllCampaigns() {
-    return this.campaignService.getAllCampaigns();
-  }
-
-  @ApiOperation({
     summary: "Fetch campaign by id",
   })
   @Get('getById/:id')
