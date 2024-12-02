@@ -8,8 +8,8 @@ export class User {
   firstName?: string;
   lastName?: string;
   role: string;
-  participants?: Participant[]; // Relation avec les participants
-  client?: Client; // Relation avec le client
+  participants?: Participant[];
+  client?: Client;
   clientId?: number;
   refreshToken?: string;
   createdAt?: Date;

@@ -4,7 +4,6 @@ import { UserRepository } from './infrastructure/repository/user.repository';
 import { UserController } from './application/controllers/user.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './domain/services/auth.service';
-import { UserUseCase } from './application/use-cases/user.usecase';
 import { ClientService } from './domain/services/client.service';
 import { CampaignService } from './domain/services/campaign.service';
 import { ParticipantService } from './domain/services/participant.service';
@@ -30,7 +29,6 @@ import { UserService } from './domain/services/user.service';
   ],
   controllers: [UserController, CampaignController, TeamController, AuthController, ClientController, ParticipantController],
   providers: [
-    UserUseCase,
     
     PrismaService, 
     AuthService,

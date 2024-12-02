@@ -15,12 +15,12 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Token rafraîchi avec succès',
+    description: 'Token successfully refreshed',
     type: RefreshTokenResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Requête invalide (ex: token expiré ou incorrect)',
+    description: 'Invalid request (ex: token expired ou incorrect)',
   })
   @Post('refresh')
   async refreshTokens(@Body() body: RefreshTokenDto): Promise<RefreshTokenResponseDto> {
@@ -32,12 +32,12 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Utilisateur connecté avec succès',
+    description: 'User successfully connected',
     type: LoginResponseDto,
   })
   @ApiResponse({
     status: 401,
-    description: 'Identifiants invalides',
+    description: 'Invalid credentials',
   })
   @Post('login')
   async login(@Body() loginCredentials: LoginUserRequestDto): Promise<LoginResponseDto> {

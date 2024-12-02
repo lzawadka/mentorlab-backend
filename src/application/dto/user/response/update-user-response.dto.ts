@@ -1,12 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserBaseDto } from '../user-base.dto';
 
-export class UpdateUserResponseDto {
-  @ApiProperty({ description: "L'ID de l'utilisateur" })
+export class UpdateUserResponseDto extends UserBaseDto {
+  @ApiProperty({ description: "User id" })
   id: number;
 
-  @ApiProperty({ description: "L'email de l'utilisateur" })
-  email: string;
-
-  @ApiProperty({ description: "Date de mise à jour de l'utilisateur" })
-  updatedAt: Date;
+  @ApiProperty({ description: "User update date" })
+  updatedAt?: Date;
 }

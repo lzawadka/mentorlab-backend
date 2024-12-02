@@ -1,8 +1,6 @@
 import { Controller, Post, Body, Get, Head, Param, Delete, Put } from '@nestjs/common';
 import { CreateUserDto } from '../dto/user/request/create-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { LoginUserRequestDto } from '../dto/auth/request/login-user-request.dto';
-import { UserUseCase } from '../use-cases/user.usecase';
 import { UpdateUserDto } from '../dto/user/request/update-user-request.dto';
 import { UpdateUserResponseDto } from '../dto/user/response/update-user-response.dto';
 import { GetUserResponseDto } from '../dto/user/response/get-user-response.dto';
@@ -13,69 +11,68 @@ import { GetClientWithUsersResponseDto } from '../dto/user/response/get-client-u
 @Controller('users')
 export class UserController {
   constructor(
-    private readonly userUseCase: UserUseCase, 
     private readonly userService: UserService, 
   ) {}
 
-  @ApiOperation({summary: "Créé un user"})
+  @ApiOperation({summary: "Create user"})
   @ApiResponse({
     status: 201,
-    description: 'Utilisateur créé avec succès',
+    description: 'User creation success',
     type: CreateUserResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: 'Données invalides',
+    description: 'Invalid data',
   })
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<CreateUserResponseDto> {
-    return this.userUseCase.createUser(createUserDto.email, createUserDto.password);
+    return this.userService.createUser(createUserDto.email, createUserDto.password);
   }
   
   @ApiOperation({summary: "Récupère le user par son mail"})
   @ApiResponse({
     status: 200,
-    description: 'Utilisateur trouvé',
+    description: 'User found',
     type: GetUserResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: 'Utilisateur non trouvé',
+    description: 'User not found',
   })
   @Get(':userMail')
   async getByMail(@Param('userMail') userMail: string): Promise<GetUserResponseDto> {
-    return this.userUseCase.findUserByMail(userMail);
+    return this.userService.findUserByMail(userMail);
   }
 
-  @ApiOperation({ summary: 'Mettre à jour un utilisateur' })
+  @ApiOperation({ summary: 'Update user datas' })
   @ApiResponse({
     status: 200,
-    description: 'Utilisateur mis à jour avec succès',
+    description: 'User successfully updated',
     type: UpdateUserResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({
     status: 400,
-    description: 'Données invalides',
+    description: 'Invalid datas',
   })
   @Put(':id')
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UpdateUserResponseDto> {
-    return await this.userUseCase.updateUser(Number(id), updateUserDto);
+    return await this.userService.updateUser(Number(id), updateUserDto);
   }
 
-  @ApiOperation({ summary: 'Supprimer un utilisateur' })
-  @ApiResponse({ status: 204, description: 'Utilisateur supprimé avec succès' })
-  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
+  @ApiOperation({ summary: 'Delet user' })
+  @ApiResponse({ status: 204, description: 'User successfully deleted' })
+  @ApiResponse({ status: 404, description: 'User nopt found' })
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<void> {
-    await this.userUseCase.deleteUser(Number(id));
+    await this.userService.deleteUser(Number(id));
   }
 
   @Get('userClient/:clientId')
-  @ApiOperation({ summary: 'Récupère tout les users via le clientId' })
+  @ApiOperation({ summary: 'Fetch all user for a clientId' })
   @ApiResponse({
     status: 200,
     description: 'Details of the client with its users',
