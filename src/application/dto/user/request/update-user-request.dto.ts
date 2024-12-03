@@ -1,13 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({
-    description: 'Email de l’utilisateur',
-  })
+  @ApiPropertyOptional({description: 'Email du user'})
   email?: string;
 
-  @ApiPropertyOptional({
-    description: 'Mot de passe de l’utilisateur',
-  })
-  password?: string;
+  @ApiPropertyOptional({description: 'Prénom du user'})
+  firstName?: string;
+
+  @ApiPropertyOptional({description: 'Nom du User'})
+  lastName?: string;
 }
