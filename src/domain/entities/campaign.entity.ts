@@ -12,6 +12,8 @@ export class Campaign {
   description?: string;
   startDate: Date;
   endDate: Date;
+  magicCode: string;
+  totalChallenges: number;
 
   type: string;
 

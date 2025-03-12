@@ -7,73 +7,228 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Participant {
+model Challenge {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  example       String?
+  estimatedTime Int?
+  difficulty    String
+  minThreshold  Int
+  maxThreshold  Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  categories           ChallengeCategory[] // Relation obligatoire vers les catégories
+  campaigns            CampaignChallenge[] // Relation optionnelle vers les campagnes
+  challengeProgression ParticipantChallengeProgression[]
+}
+
+model ParticipantChallengeProgression {
+  id            Int         @id @default(autoincrement())
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participantId Int
+  challenge     Challenge   @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId   Int
+  campaign      Campaign    @relation(fields: [campaignId], references: [id])
+  campaignId    Int
+  status        String // IN_PROGRESS, COMPLETED
+  completedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now()) @updatedAt
+
+  @@unique([participantId, challengeId, campaignId])
+}
+
+model ChallengeCategory {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int
+  challengeId Int
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, categoryId])
+}
+
+model ParticipantCampaignProgress {
+  id                   Int         @id @default(autoincrement())
+  participant          Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participantId        Int
+  campaign             Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId           Int
+  challengesCompleted  Int         @default(0)
+  challengesInProgress Int         @default(0)
+  progressPercentage   Float       @default(0)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  @@unique([participantId, campaignId])
+}
+
+model SelfEvaluation {
+  id            Int         @id @default(autoincrement())
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participantId Int
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId    Int
+  score         Int
+  createdAt     DateTime    @default(now())
+
+  @@unique([participantId, categoryId])
+}
+
+model CampaignChallenge {
+  id          Int       @id @default(autoincrement())
+  campaignId  Int
+  challengeId Int
+  campaign    Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  challenges      ChallengeCategory[] // Relation vers les challenges
+  campaign        CampaignCategory[]
+  selfEvaluations SelfEvaluation[] // Relation to SelfEvaluation
+}
+
+model CampaignCategory {
   id         Int      @id @default(autoincrement())
-  userId     Int      // Champ clé étrangère pour la relation avec User
-  campaignId Int      // Champ clé étrangère pour la relation avec Campaign
-  teamId     Int?     // Champ clé étrangère optionnel pour la relation avec Team
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId Int
+}
 
-  user       User     @relation(fields: [userId], references: [id])
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
-  team       Team?    @relation(fields: [teamId], references: [id])
+model Participant {
+  id         Int  @id @default(autoincrement())
+  userId     Int
+  campaignId Int
+  teamId     Int?
 
-  createdAt  DateTime @default(now())
+  user     User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign Campaign                      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  team     Team?                         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  progress ParticipantCampaignProgress[]
+
+  createdAt            DateTime                          @default(now())
+  challengeProgression ParticipantChallengeProgression[]
+  selfEvaluations      SelfEvaluation[]
+  Leaderboard          Leaderboard[]
 }
 
 model User {
-  id          Int     @id @default(autoincrement())
-  email       String  @unique
-  password    String
-  firstName   String?
-  lastName    String?
-  role        String  @default("participant")
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  firstName    String?
+  lastName     String?
+  role         String        @default("participant")
   refreshToken String?
-  clientId   Int      @default(1)
-  client     Client   @relation(fields: [clientId], references: [id])
-  participants Participant[] // Relation vers Participant
+  clientId     Int?
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  participants Participant[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Campaign {
-  id           Int         @id @default(autoincrement())
-  clientId     Int         
-  
-  title        String
-  description  String?
-  startDate    DateTime
-  endDate      DateTime
+  id              Int      @id @default(autoincrement())
+  clientId        Int
+  title           String
+  description     String?
+  startDate       DateTime
+  endDate         DateTime
+  type            String
+  magicCode       String   @unique @db.VarChar(6)
+  totalChallenges Int
 
-  type         String
+  client       Client                            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  participants Participant[]
+  teams        Team[]
+  challenges   CampaignChallenge[]
+  categories   CampaignCategory[]
+  progress     ParticipantChallengeProgression[]
 
-  client       Client     @relation(fields: [clientId], references: [id]) // Relation vers Client
-  participants Participant[] // Relation vers Participant
-  teams        Team[] 
-
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @default(now()) @updatedAt
+  ParticipantCampaignProgress ParticipantCampaignProgress[]
+  Leaderboard                 Leaderboard[]
 }
 
 model Client {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
-  description String?
-  contactEmail String    @unique
-  campaigns   Campaign[]
-  users       User[] 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           Int        @id @default(autoincrement())
+  name         String     @unique
+  description  String?
+  contactEmail String     @unique
+  campaigns    Campaign[]
+  users        User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Team {
-  id           Int           @id @default(autoincrement())
-  name         String
-  campaignId   Int           // Champ clé étrangère pour Campaign
-  points       Int           @default(0)
+  id         Int    @id @default(autoincrement())
+  name       String
+  campaignId Int // Foreign key to Campaign
+  points     Int    @default(0)
 
-  campaign     Campaign      @relation(fields: [campaignId], references: [id])
-  participants Participant[] // Relation vers Participant
+  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  participants Participant[] // Relation to Participant
 
-  createdAt    DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  Leaderboard Leaderboard[]
+}
+
+model Leaderboard {
+  id            Int      @id @default(autoincrement())
+  campaignId    Int
+  participantId Int?
+  teamId        Int?
+  rank          Int
+  points        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  campaign    Campaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  participant Participant? @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  team        Team?        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([participantId])
+  @@index([teamId])
+
+  @@unique([campaignId, participantId])
+  @@unique([campaignId, teamId])
+}
+
+model LogTechnical {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  action    String // Function or place where the log is triggered
+  message   String // Log message
+  type      String // Log type: "error", "warning", "debug", etc.
+  userId    Int? // Nullable User ID if applicable
+
+  @@index([timestamp])
+  @@map("log_technical")
+}
+
+model LogFunctional {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  action    String // Function or action that triggered the log
+  message   String // Log message
+  userId    Int? // Nullable User ID if applicable
+
+  @@index([timestamp])
+  @@map("log_functional")
 }

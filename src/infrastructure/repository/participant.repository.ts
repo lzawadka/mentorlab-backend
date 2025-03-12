@@ -12,6 +12,12 @@ export class ParticipantRepository {
     });
   }
 
+  async findParticipantById(participantId: number) {
+    return this.prisma.participant.findFirst({
+      where: { id: participantId },
+    });
+  }
+
   async createParticipant(userId: number, campaignId: number, teamId?: number) {
     return this.prisma.participant.create({
       data: {
@@ -29,10 +35,23 @@ export class ParticipantRepository {
     });
   }
 
-  async findParticipantByUser(userId: number) {
+  async findParticipantsByUser(userId: number) {
     return this.prisma.participant.findMany({
       where: { userId },
-      include: { campaign: true },
+      include: { 
+        campaign: true,
+        progress: true,
+      },
+    });
+  }
+
+  async findParticipantByUserAndCampaign(userId: number, campaignId: number) {
+    return this.prisma.participant.findFirst({
+      where: { userId, campaignId },
+      include: { 
+        campaign: true,
+        progress: true,
+      },
     });
   }
 
@@ -57,7 +76,6 @@ export class ParticipantRepository {
       },
     });
   }
-  
 
   async findByIds(participantIds: number[]) {
     return this.prisma.participant.findMany({
@@ -82,6 +100,9 @@ export class ParticipantRepository {
       where: {
         campaignId,
         userId: { in: userIds },
+      },
+      include: { 
+        progress: true,
       },
     });
   }
